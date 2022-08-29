@@ -1,73 +1,70 @@
-const prompt = require('prompt-sync')();
-// Hvilket schema trenger jeg og hvordan bruke det?
-// Hvordan promte brukeren?
-// Hvordan ta i mot argumenter?
-// Hvordan ha applikasjonsflyt?
-// Hvordan håndtere feil verdier?
-
-
-const currencies = {
-    dkk: { label: {no:'Danske Kroner', en: "Danish Crowns"}}, 
-    eur: { label: {no: 'Euro', en: "Euro"}}, 
-    usd: { label: {no: 'Amerikanske Dollar', en: 'American Dollars'}}
-}
-
-const translations = {
-    no: {
-        welcomeMessage: "Norsk(no)",
-        valueMessage: "Hvilken verdi vil du konvertere?",
-        currencies: {
-            usd:"Amerikanske Dollar",
-            eur: "Euro",
-            dkk: "Danske Kroner",
-        }
-    },
-
-    en: {
-        welcomeMessage: "English(en)",
-        valueMessage: "What value do you wish to convert?",
-        currencies: {
-            usd:"American Dollar",
-            eur: "Euro",
-            dkk: "Dansish Crowns",
-        }
-    },
-};
+const prompt = require('prompt-sync')()
 
 const rates = {
-    dkk: 1.34,
-    eur: 10,
-    usd: 8
+  dkk: 1.34,
+  eur: 10,
+  usd: 8,
+};
+
+const translations = {
+  no: {
+    welcomeMessage: "Norsk (no)",
+    valueMessage: "Hvilken verdi skal du skal konvertere? ",
+    currencies: {
+      usd: "Amerikanske dollar",
+      eur: "Euro",
+      dkk: "Danske kroner",
+    },
+  },
+  en: {
+    welcomeMessage: "English (en)",
+    valueMessage: "What value to convert? ",
+    currencies: {
+      usd: "American dollar",
+      eur: "Euro",
+      dkk: "Danish krone",
+    },
+  },
+};
+
+function getWelcomeMessage(translations) {
+  let message = "";
+  for (const language of Object.values(translations)) {
+    message += `${language["welcomeMessage"]} `;
+  }
+  return message;
 }
-//
-// get input from the user.
-//
-function getWelcomeMessage (translations){
-    let message = ""
-    for(const language of Object.values(translations)){
-        message += `${language.welcomeMessage} `
-    }
-    return(message)
+
+function getValueMessage(translation) {
+  return translation["valueMessage"];
 }
 
-function convertToEuro(value) {
-    return Number(value) / 10;
+function handleConvertion(rate, value, decimals = 2) {
+  return Number(Number(value) / Number(rate)).toFixed(decimals);
 }
 
-function convertToDollar(value) {
-    return Number(value) / 8;
+function getCurrencyMessage(currencies) {
+  let message = "";
+
+  for (const entry of Object.entries(currencies)) {
+    const [short, long] = entry;
+    message += `${long}(${short}) `;
+  }
+
+  return message;
 }
-
-function convertToDanish(value) {
-    return Number(value) / 1.34;
-}
-
-
-
 
 function start(translations, rates) {
-    const language = prompt(getWelcomeMessage(translations));
-    console.log(language)
+  const language = prompt(getWelcomeMessage(translations));
+  const translation = translations[language];
+  const currencies = translation["currencies"];
+  const valueMessage = getValueMessage(translation);
+  const value = prompt(valueMessage);
+  const currencyMessage = getCurrencyMessage(currencies);
+  const currency = prompt(currencyMessage);
+  return handleConvertion(rates[currency], value);
 }
 
-start(translations, rates)
+const result = start(translations, rates);
+
+console.log(result);
